@@ -1,0 +1,19 @@
+{
+  "app_id": "safe-app-the-squirrel",
+  "name": "the-squirrel",
+  "version": "1.0.0",
+  "safe_version": ">=2.0.0",
+  "description": "Genealogy companion with a sense of humor. Helps you find, collect, and reconnect the branches of your family tree \u2014 even the ones everyone forgot about on purpose.",
+  "author": "Sean Campbell",
+  "data_streams": [],
+  "permissions": [
+    "family_history:read",
+    "family_history:write",
+    "knowledge:read"
+  ],
+  "privacy_tier": "mixed",
+  "local_processing": 0.9,
+  "entry_point": "app.main:run",
+  "license": "MIT",
+  "repository": "https://github.com/rudi193-cmd/safe-app-the-squirrel"
+}
