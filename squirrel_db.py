@@ -15,7 +15,10 @@ from datetime import datetime
 from typing import Optional, List, Dict, Any, Tuple
 
 # Import 23-cubed lattice constants from Willow
-sys.path.insert(0, os.environ.get("WILLOW_CORE", "/home/sean-campbell/github/Willow/core"))
+_willow_core = os.environ.get("WILLOW_CORE")
+if not _willow_core:
+    raise EnvironmentError("WILLOW_CORE env var not set")
+sys.path.insert(0, _willow_core)
 from user_lattice import DOMAINS, TEMPORAL_STATES, DEPTH_MIN, DEPTH_MAX, LATTICE_SIZE
 
 # ---------------------------------------------------------------------------
