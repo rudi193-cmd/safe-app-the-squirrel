@@ -1,11 +1,15 @@
 """
-squirrel_db.py -- The Squirrel genealogy companion database using the 23-cubed lattice structure.
+squirrel_db.py — DEPRECATED. Use the db/ package instead.
 
-PostgreSQL-only. Schema: the_squirrel.
-Each fragment maps into a 23x23x23 lattice (12,167 cells per entity).
+Superseded by db/__init__.py, db/persons.py, db/fragments.py, db/sources.py
+as of Level 2 rebuild (2026-04-15).
 
-Lattice constants imported from Willow's user_lattice.py.
-DB connection follows Willow's core/db.py pattern (psycopg2, pooled).
+Differences vs db/ package:
+  - Table name: lattice_cells (here) vs fragment_lattice_cells (db/)
+  - No SAP gate
+  - No persons/relationships/person_sources tables
+
+Kept for reference. Do not use in new code.
 """
 
 import os
