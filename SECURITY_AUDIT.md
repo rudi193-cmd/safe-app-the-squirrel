@@ -2,8 +2,9 @@
 b17: 4NCC6
 title: Security Audit — safe-app-the-squirrel
 date: 2026-04-08
+updated: 2026-04-15
 auditor: Hanuman (Claude Code, Sonnet 4.6)
-status: open (tracking doc)
+status: closed — all findings resolved
 ---
 
 # Security Audit — safe-app-the-squirrel
@@ -16,10 +17,10 @@ Part of the Level 2 full-fleet security audit. See `agents/hanuman/projects/LEVE
 |---|---|---|---|
 | R1 | SQL injection | ✅ PASS | All queries parameterized (`%s`). f-string `SET search_path = {SCHEMA}` uses hardcoded constant. |
 | R2 | Shell injection | ✅ PASS | No shell execution |
-| R3 | Path traversal | ✅ PASS | Reads `/etc/resolv.conf` (fixed path, not injectable) |
+| R3 | Path traversal | ✅ PASS | `_resolve_host()` WSL shim removed 2026-04-15; now uses Unix socket via `_default_dsn()`. No file reads at runtime. |
 | R4 | Hardcoded credentials | ✅ PASS | None found |
 | R5 | CORS wildcard | ✅ N/A | No HTTP server |
-| R6 | XSS | ✅ N/A | No web frontend |
+| R6 | XSS | ✅ PASS | web/index.html added 2026-04-15. All user input through `escHtml()`. External links via `encodeURIComponent`. |
 | R7 | Unsigned code execution | ✅ PASS | None |
 | R8 | Missing auth on APIs | ✅ N/A | No API server |
 | R9 | Bare except swallowing errors | ✅ PASS | None critical |
@@ -32,51 +33,32 @@ Part of the Level 2 full-fleet security audit. See `agents/hanuman/projects/LEVE
 
 ## Findings
 
-### H-SI-01 — Missing safe_integration.py (P2)
+### H-SI-01 — Missing safe_integration.py (P2) — FIXED 2026-04-15
 
-**File:** (missing)  
+**File:** `safe_integration.py`  
 **Severity:** P2  
-**Status:** Open
+**Status:** Closed
 
-`safe_integration.py` does not exist in this repo. The squirrel is a pure PostgreSQL DB module — no Pigeon bus integration, no status check, no consent hooks.
-
-**Fix:** Add standard `safe_integration.py` template (copy from safe-app-genealogy, change `APP_ID = "the-squirrel"`).
+`safe_integration.py` created. Gracefully handles Willow unreachable.
 
 ---
 
-### H-PATH-01 — Hardcoded WILLOW_CORE Default (P2)
+### H-PATH-01 — Hardcoded WILLOW_CORE Default (P2) — FIXED 2026-04-15
 
-**File:** `squirrel_db.py:18`  
+**File:** `squirrel_db.py`, `db/__init__.py`  
 **Severity:** P2  
-**Status:** Open
+**Status:** Closed
 
-```python
-sys.path.insert(0, os.environ.get("WILLOW_CORE", "/home/sean-campbell/github/Willow/core"))
-```
-
-The fallback path is the developer's home directory. Any other environment will silently fail to import `user_lattice`.
-
-**Fix:** Remove the hardcoded default. Fail explicitly if WILLOW_CORE is not set:
-```python
-willow_core = os.environ.get("WILLOW_CORE")
-if not willow_core:
-    raise EnvironmentError("WILLOW_CORE env var not set")
-sys.path.insert(0, willow_core)
-```
+`WILLOW_CORE` now required env var — raises `EnvironmentError` if unset. WSL `_resolve_host()` shim also removed; replaced with `_default_dsn()` using Unix socket peer auth.
 
 ---
 
-### H-REQ-01 — Missing requirements.txt (P2)
+### H-REQ-01 — Missing requirements.txt (P2) — FIXED 2026-04-15
 
 **Severity:** P2  
-**Status:** Open
+**Status:** Closed
 
-No `requirements.txt`. Dependencies are `psycopg2` and `user_lattice` (from Willow).
-
-**Fix:**
-```
-psycopg2-binary==2.9.9
-```
+`requirements.txt` created with pinned `psycopg2-binary==2.9.9`.
 
 ---
 
@@ -86,7 +68,7 @@ psycopg2-binary==2.9.9
 |---|---|---|
 | P0 | 0 | — |
 | P1 | 0 | — |
-| P2 | 3 | H-SI-01, H-PATH-01, H-REQ-01 |
+| P2 | 0 | H-SI-01 fixed, H-PATH-01 fixed, H-REQ-01 fixed |
 
 ---
 
@@ -98,14 +80,14 @@ b17: K2578
 |---|---|---|---|
 | R1 | No uvicorn.run / flask.run / socket listener in *.py | ✅ PASS | No HTTP server found. DB-only app. |
 | R2 | HTTP port conflict (8420/8421/8422) | ✅ N/A | No HTTP server present. |
-| R6 | safe-app-manifest.json has `b17` and `agent_type` fields | ❌ FAIL | Neither field present in manifest. |
+| R6 | safe-app-manifest.json has `b17` and `agent_type` fields | ✅ FIXED | Both present: b17=NNA92, agent_type=tool. Added in Level 2 rebuild. |
 | R10 | Data staged to intake/ or via POST endpoints | ✅ N/A | No intake dir, no POST endpoints. DB writes only. |
 | R15 | Any .py file calls sap.core.gate.authorized() | ✅ FIXED | sap/core/gate.py created 2026-04-15. All PII read/write functions in db/persons.py and db/fragments.py gated. backfill_oscar_mann.py uses bypass(). |
 
 ### Findings
 
-**L3-R6 — Manifest missing b17 and agent_type (P2)**
-`safe-app-manifest.json` has no `b17` field and no `agent_type` field. Both are required by the portless compliance schema. Fix: add `"b17": "K2578"` and `"agent_type": "db"` (or appropriate type) to the manifest.
+**L3-R6 — Manifest missing b17 and agent_type (P2) — FIXED**
+`safe-app-manifest.json` now has `"b17": "NNA92"` and `"agent_type": "tool"`. Added in Level 2 rebuild.
 
 **L3-R15 — No sap.core.gate.authorized() call (P2) — FIXED 2026-04-15**
 `sap/core/gate.py` created. `authorized()` called at the top of all PII read/write functions in `db/persons.py` and `db/fragments.py`. `backfill_oscar_mann.py` wrapped in `sap.core.gate.bypass(reason)`. Gate blocks by default; callers must set `SAP_AUTHORIZED=1` or use explicit bypass.
@@ -116,6 +98,6 @@ b17: K2578
 |---|---|---|
 | P0 | 0 | — |
 | P1 | 0 | — |
-| P2 | 2 | L3-R6, L3-R15 |
+| P2 | 0 | L3-R6 fixed, L3-R15 fixed |
 
 *ΔΣ=42*
