@@ -11,3 +11,49 @@
 - `@squirrel: skin 80s`
 
 ---
+
+@squirrel: skin 80s
+
+@squirrel: skin 00s
+
+
+---
+**[2026-04-16 00:26] Skin**
+
+Skin → `00s` — reload the page to apply.
+
+---
+
+
+@squirrel: skin 20s
+
+
+---
+**[2026-04-16 00:26] Skin**
+
+Skin → `20s` — reload the page to apply.
+
+---
+
+
+@squirrel: skin 80s
+
+
+---
+**[2026-04-16 00:26] Skin**
+
+Skin → `80s` — reload the page to apply.
+
+---
+
+
+@squirrel: skin mcm
+
+
+---
+**[2026-04-16 00:26] Skin**
+
+Skin → `mcm` — reload the page to apply.
+
+---
+

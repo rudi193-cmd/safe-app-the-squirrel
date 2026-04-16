@@ -5,7 +5,7 @@ from responder.llm.prompt import JELES_SYSTEM
 import db.persons as persons_db
 
 OLLAMA_URL = "http://localhost:11434/api/chat"
-DEFAULT_MODEL = "llama3"
+DEFAULT_MODEL = "qwen2.5:3b"
 
 
 def _ollama_available() -> bool:
