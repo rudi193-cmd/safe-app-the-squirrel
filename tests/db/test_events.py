@@ -8,7 +8,7 @@ def conn():
     c = get_connection()
     events_db.init_schema(c)
     yield c
-    c.execute("DELETE FROM the_squirrel.events WHERE notes LIKE 'TEST%'")
+    c.cursor().execute("DELETE FROM the_squirrel.events WHERE notes LIKE 'TEST%'")
     c.commit()
     release_connection(c)
 
@@ -21,7 +21,9 @@ def test_add_and_get_event(conn):
     assert event["event_type"] == "birth"
     fetched = events_db.get_events(conn, pid)
     assert any(e["place"] == "Iowa" for e in fetched)
-    conn.cursor().execute("DELETE FROM the_squirrel.persons WHERE id = %s", (pid,))
+    cur = conn.cursor()
+    cur.execute("DELETE FROM the_squirrel.events WHERE person_id = %s", (pid,))
+    cur.execute("DELETE FROM the_squirrel.persons WHERE id = %s", (pid,))
     conn.commit()
 
 def test_invalid_event_type(conn):

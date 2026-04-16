@@ -17,3 +17,4 @@ sys.modules["user_lattice"] = _fake
 
 os.environ.setdefault("WILLOW_CORE", "/tmp/fake_willow_core")
 os.environ.setdefault("WILLOW_PG_DB", "willow")
+os.environ.setdefault("SAP_AUTHORIZED", "1")

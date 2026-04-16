@@ -8,7 +8,7 @@ def conn():
     c = get_connection()
     media_db.init_schema(c)
     yield c
-    c.execute("DELETE FROM the_squirrel.media WHERE caption LIKE 'TEST%'")
+    c.cursor().execute("DELETE FROM the_squirrel.media WHERE caption LIKE 'TEST%'")
     c.commit()
     release_connection(c)
 
@@ -20,5 +20,7 @@ def test_add_and_get_media(conn):
     assert m["person_id"] == pid
     results = media_db.get_media(conn, pid)
     assert any(r["caption"] == "TEST photo" for r in results)
-    conn.cursor().execute("DELETE FROM the_squirrel.persons WHERE id = %s", (pid,))
+    cur = conn.cursor()
+    cur.execute("DELETE FROM the_squirrel.media WHERE person_id = %s", (pid,))
+    cur.execute("DELETE FROM the_squirrel.persons WHERE id = %s", (pid,))
     conn.commit()
