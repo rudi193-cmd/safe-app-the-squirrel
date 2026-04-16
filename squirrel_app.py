@@ -30,6 +30,7 @@ if not _os.environ.get("WILLOW_CORE"):
     _os.environ["WILLOW_CORE"] = str(_fake)
 _os.environ.setdefault("SAP_AUTHORIZED", "1")
 
+import html as _html
 import json
 import threading
 import uuid
@@ -224,8 +225,8 @@ def _render_people(conn) -> str:
         cards = "".join(
             f'<a class="person-card" href="/person/{p["id"]}">'
             f'<div class="cameo">{_CAMEO_SVG}</div>'
-            f'<div class="person-card-name">{p["full_name"]}</div>'
-            f'<div class="person-card-dates">{_fmt_dates(p)}</div></a>'
+            f'<div class="person-card-name">{_html.escape(p["full_name"])}</div>'
+            f'<div class="person-card-dates">{_html.escape(_fmt_dates(p))}</div></a>'
             for p in people
         )
         n = len(people)
@@ -249,9 +250,9 @@ def _render_person(conn, person_id: int) -> str:
                        ("Died", "death_date"), ("Deathplace", "death_place"),
                        ("Buried", "burial_place")]:
         if p.get(key):
-            fields += f"<dt>{label}</dt><dd>{p[key]}</dd>"
+            fields += f"<dt>{label}</dt><dd>{_html.escape(str(p[key]))}</dd>"
     if p.get("bio"):
-        fields += f"<dt>Bio</dt><dd>{p['bio']}</dd>"
+        fields += f"<dt>Bio</dt><dd>{_html.escape(p['bio'])}</dd>"
     kin_items = ""
     for r in tree["relationships"]:
         rid = r.get("related_person_id") or r.get("person_id")
@@ -260,19 +261,19 @@ def _render_person(conn, person_id: int) -> str:
         rname = r.get("related_name", "Unknown")
         rtype = r.get("relationship_type", "")
         kin_items += (f'<div class="person-kin-item">'
-                      f'<div class="person-kin-rel">{rtype}</div>'
-                      f'<div class="person-kin-name"><a href="/person/{rid}">{rname}</a></div>'
+                      f'<div class="person-kin-rel">{_html.escape(rtype)}</div>'
+                      f'<div class="person-kin-name"><a href="/person/{rid}">{_html.escape(rname)}</a></div>'
                       f'</div>')
     kin = (f"<h3>Relationships</h3>"
            f'<div class="person-kin-list">{kin_items}</div>') if kin_items else ""
     tree_link = (f'<p style="margin:0.75rem 0">'
                  f'<a href="/tree?name={quote(p["full_name"])}">View in tree →</a></p>')
-    body = (f'<h2 class="page-title">{p["full_name"]}</h2>'
+    body = (f'<h2 class="page-title">{_html.escape(p["full_name"])}</h2>'
             f'<div class="person-detail">'
             f'<div class="person-detail-portrait">{portrait}</div>'
             f'<div><dl class="person-detail-fields">{fields}</dl>{tree_link}{kin}</div>'
             f'</div>')
-    return _html_page(p["full_name"], "/people", body)
+    return _html_page(_html.escape(p["full_name"]), "/people", body)
 
 
 def _render_tree(conn, name: str = "") -> str:
@@ -282,7 +283,7 @@ def _render_tree(conn, name: str = "") -> str:
     search_form = (
         f'<div class="tree-search">'
         f'<input type="text" id="tree-name" placeholder="Enter a name" '
-        f'value="{name}" onkeydown="if(event.key===\'Enter\')goTree()">'
+        f'value="{_html.escape(name)}" onkeydown="if(event.key===\'Enter\')goTree()">'
         f'<button onclick="goTree()">View Tree</button></div>'
         f'<script>function goTree(){{const n=document.getElementById("tree-name").value.trim();'
         f'if(n)window.location.href="/tree?name="+encodeURIComponent(n);}}</script>'
@@ -296,7 +297,7 @@ def _render_tree(conn, name: str = "") -> str:
     matches = persons_db.search_persons(conn, name)
     if not matches:
         body = (f'<h2 class="page-title">Pedigree Tree</h2>' + search_form +
-                f'<div class="empty-state"><p>No person found matching "{name}".</p></div>')
+                f'<div class="empty-state"><p>No person found matching "{_html.escape(name)}".</p></div>')
         return _html_page("Tree", "/tree", body)
 
     subject = matches[0]
@@ -305,7 +306,7 @@ def _render_tree(conn, name: str = "") -> str:
     def _dag(n: int) -> str:
         p = ancestors.get(n)
         if p:
-            link = f'<a href="/person/{p["id"]}" class="dag-name">{p["full_name"]}</a>'
+            link = f'<a href="/person/{p["id"]}" class="dag-name">{_html.escape(p["full_name"])}</a>'
             dates = f'<div class="dag-dates">{_fmt_dates(p)}</div>' if _fmt_dates(p) else ""
             return (f'<div class="dag-node">'
                     f'<div class="dag-frame">{_CAMEO_SVG}</div>{link}{dates}</div>')
@@ -320,7 +321,7 @@ def _render_tree(conn, name: str = "") -> str:
     s_col = f'<div class="tree-generation">{_dag(1)}</div>'
 
     tree_html = f'<div class="tree-container">{gp_col}{p_col}{s_col}</div>'
-    body = (f'<h2 class="page-title">Pedigree — {subject["full_name"]}</h2>'
+    body = (f'<h2 class="page-title">Pedigree — {_html.escape(subject["full_name"])}</h2>'
             f'{search_form}{tree_html}')
     return _html_page("Tree", "/tree", body)
 
@@ -341,8 +342,8 @@ def _render_stash(conn) -> str:
             text = f.get("story_text") or f.get("person_name") or ""
             meta = f"{f.get('fragment_type','')} · {f.get('confidence','')}{badge}"
             rows += (f'<div class="stash-item{cls}">'
-                     f'<div class="stash-text">{text}</div>'
-                     f'<div class="stash-meta">{meta}</div></div>')
+                     f'<div class="stash-text">{_html.escape(text)}</div>'
+                     f'<div class="stash-meta">{_html.escape(meta)}</div></div>')
         n = len(all_frags)
         body = (f'<h2 class="page-title">Stash</h2>'
                 f'<p class="page-subtitle">{n} fragments · '
@@ -355,7 +356,7 @@ def _render_sources(conn, q: str = "") -> str:
     import db.sources as sources_db
     search_form = (
         f'<form class="sources-search" action="/sources" method="get">'
-        f'<input type="text" name="q" value="{q}" '
+        f'<input type="text" name="q" value="{_html.escape(q)}" '
         f'placeholder="Search by state, city, archive name...">'
         f'<button type="submit">Search</button></form>'
     )
@@ -461,12 +462,21 @@ def _handle_stories_chat(handler, body: dict):
         handler._send_json({"error": "message required"}, 400)
         return
     sid = body.get("session_id")
+    import time as _time
+    _TTL = 7200  # 2 hours
     with _stories_lock:
+        # Evict stale sessions
+        now = _time.time()
+        stale = [k for k, v in _stories_sessions.items()
+                 if now - v.get("created_at", now) > _TTL]
+        for k in stale:
+            del _stories_sessions[k]
+        # Get or create session
         if sid and sid in _stories_sessions:
             session = _stories_sessions[sid]
         else:
             sid = str(uuid.uuid4())
-            session = {"turns": []}
+            session = {"turns": [], "created_at": _time.time()}
             _stories_sessions[sid] = session
         session["turns"].append({"role": "user", "content": message})
 
@@ -513,8 +523,9 @@ def _handle_stories_save(handler, body: dict):
                         saved += 1
             finally:
                 release_connection(conn)
-        except Exception:
-            pass
+        except Exception as _e:
+            handler._send_json({"saved": saved, "error": str(_e)})
+            return
     handler._send_json({"saved": saved})
 
 
@@ -576,8 +587,10 @@ class SquirrelHandler(BaseHTTPRequestHandler):
             self._send_json({"mtime": mtime})
         elif path.startswith("/skins/"):
             fname = path[len("/skins/"):]
-            css_path = SKINS_DIR / fname
-            if css_path.exists() and css_path.suffix == ".css":
+            css_path = (SKINS_DIR / fname).resolve()
+            skins_root = SKINS_DIR.resolve()
+            if (css_path.is_file() and css_path.suffix == ".css"
+                    and skins_root in css_path.parents):
                 data = css_path.read_bytes()
                 self.send_response(200)
                 self.send_header("Content-Type", "text/css")
@@ -595,7 +608,8 @@ class SquirrelHandler(BaseHTTPRequestHandler):
             pass
 
     def _do_POST(self):
-        length = int(self.headers.get("Content-Length", 0))
+        MAX_BODY = 64 * 1024
+        length = min(int(self.headers.get("Content-Length", 0)), MAX_BODY)
         try:
             body = json.loads(self.rfile.read(length))
         except Exception:
