@@ -33,7 +33,7 @@
 
 /* Nav */
 [data-skin="00s"] #nav { background: linear-gradient(180deg, #bbddee 0%, #99bbdd 100%); border-bottom: 1px solid #77aacc; }
-[data-skin="00s"] .nav-link { color: #334455; font-weight: bold; font-size: 0.75rem; border-radius: 3px; }
+[data-skin="00s"] .nav-link { color: #334455; font-weight: bold; font-size: 0.75rem; border-radius: 3px; border: 1px solid transparent; }
 [data-skin="00s"] .nav-link:hover { background: #aaccdd; color: #003366; }
 [data-skin="00s"] .nav-link--active { background: linear-gradient(180deg, #ddeeff 0%, #aaccee 100%); color: #003366; border: 1px solid #88aacc; }
 /* Cameo */
