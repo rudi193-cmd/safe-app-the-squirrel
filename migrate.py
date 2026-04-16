@@ -11,6 +11,8 @@ from db import get_connection, release_connection
 import db.persons as persons_db
 import db.fragments as fragments_db
 import db.sources as sources_db
+import db.events as events_db
+import db.media as media_db
 
 
 def main():
@@ -25,6 +27,12 @@ def main():
 
         sources_db.init_schema(conn)
         print("  ✓ source_registry (FTS index)")
+
+        events_db.init_schema(conn)
+        print("  ✓ events")
+
+        media_db.init_schema(conn)
+        print("  ✓ media")
 
         print("\nSeeding source_registry from community_history_archives.json...")
         inserted = sources_db.seed_from_json(conn)
