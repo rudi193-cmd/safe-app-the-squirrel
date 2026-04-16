@@ -8,3 +8,6 @@ credentials.json
 .cache/
 .wrangler/
 node_modules/
+.claude/
+.playwright-mcp/
+.superpowers/
