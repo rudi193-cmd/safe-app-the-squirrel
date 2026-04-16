@@ -54,9 +54,14 @@ def ensure_squirrel_md(path: Path = SQUIRREL_MD):
         path.write_text(WELCOME_BLOCK, encoding="utf-8")
 
 
+_RENDER_LIMIT = 50_000  # chars — keep the tail (most recent content)
+
+
 def _render_html(skin: str = "mcm") -> str:
     ensure_squirrel_md()
     raw = SQUIRREL_MD.read_text(encoding="utf-8")
+    if len(raw) > _RENDER_LIMIT:
+        raw = "*[…earlier entries trimmed — file too large to render in full]*\n\n" + raw[-_RENDER_LIMIT:]
     body = _md.markdown(raw, extensions=["fenced_code", "tables"])
     return f"""<!DOCTYPE html>
 <html lang="en" data-skin="{skin}">
@@ -115,6 +120,12 @@ class SquirrelHandler(BaseHTTPRequestHandler):
         pass
 
     def do_GET(self):
+        try:
+            self._do_GET()
+        except BrokenPipeError:
+            pass
+
+    def _do_GET(self):
         p = urlparse(self.path)
         if p.path == "/":
             html = _render_html(self.skin).encode("utf-8")
