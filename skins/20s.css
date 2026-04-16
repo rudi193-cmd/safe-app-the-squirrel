@@ -1,0 +1,39 @@
+/* skins/20s.css — 2020s glassmorphism */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+
+[data-skin="20s"] {
+  --font-display: 'Inter', system-ui, sans-serif;
+  --font-body:    'Inter', system-ui, sans-serif;
+  --font-mono:    'JetBrains Mono', monospace;
+  --color-bg:         #0d0d12;
+  --color-surface:    rgba(255,255,255,0.06);
+  --color-text:       #e2e4ee;
+  --color-muted:      #5a5d70;
+  --color-accent:     #7c6dfa;
+  --color-accent-dim: #4a3d9a;
+  --border: 1px solid rgba(255,255,255,0.08);
+  --title-tracking: -0.02em;
+}
+
+[data-skin="20s"] #header {
+  background: rgba(13,13,18,0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+[data-skin="20s"] #content pre {
+  border-radius: 8px;
+  background: rgba(255,255,255,0.04);
+}
+
+[data-skin="20s"] #input-area {
+  background: rgba(13,13,18,0.9);
+  backdrop-filter: blur(12px);
+}
+
+[data-skin="20s"] #input-area textarea { border-radius: 6px; }
+
+[data-skin="20s"] #input-area button {
+  border-radius: 20px;
+  padding: 0.5rem 1.25rem;
+}

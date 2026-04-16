@@ -1,0 +1,29 @@
+/* skins/00s.css — 2000s Web 2.0 */
+[data-skin="00s"] {
+  --font-display: 'Trebuchet MS', Arial, sans-serif;
+  --font-body:    'Trebuchet MS', Arial, sans-serif;
+  --font-mono:    'Lucida Console', monospace;
+  --color-bg:         #dde8f0;
+  --color-surface:    #c5d8e8;
+  --color-text:       #1a2a38;
+  --color-muted:      #5a7a94;
+  --color-accent:     #0066aa;
+  --color-accent-dim: #4499cc;
+  --border: 1px solid #8ab0cc;
+  --title-tracking: 0.05em;
+}
+
+[data-skin="00s"] #header {
+  background: linear-gradient(180deg, #aaccee 0%, #88aacc 100%);
+  border-bottom: 2px solid #6699bb;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+[data-skin="00s"] #title { color: #003366; text-shadow: 0 1px 0 #ffffff88; }
+
+[data-skin="00s"] #input-area button {
+  background: linear-gradient(180deg, #44aaff 0%, #0066cc 100%);
+  border: 1px solid #0044aa;
+  border-radius: 3px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
