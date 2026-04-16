@@ -34,11 +34,16 @@ class _Handler(FileSystemEventHandler):
                 line = line.strip()
                 if not line:
                     continue
-                if mode == "journal":
-                    if "@squirrel:" in line.lower():
-                        self._callback(line)
-                else:
+                if "@squirrel:" in line.lower():
                     self._callback(line)
+                elif mode != "journal":
+                    self._callback(line)
+            # Advance past anything the callback wrote so we don't re-process
+            # bot responses on the next fire.
+            try:
+                self._last_size = self._path.stat().st_size
+            except OSError:
+                pass
         except Exception as e:
             print(f"[watcher] error: {e}")
 
